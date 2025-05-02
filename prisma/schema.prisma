@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String              @id @default(uuid())
+  nome               String
+  email              String              @unique
+  senhaHash          String
+  role               Role
+  ativo              Boolean             @default(true)
+
+  escritorios        UsuarioEscritorio[]
+  processos          AdvogadoProcesso[]
+}
+
+model Escritorio {
+  id                 String              @id @default(uuid())
+  nome               String
+  cnpj               String?             @unique
+
+  usuarios           UsuarioEscritorio[]
+  processos          Processo[]
+  clientes           Cliente[]
+}
+
+model UsuarioEscritorio {
+  id                 String              @id @default(uuid())
+  userId             String
+  escritorioId       String
+  permissao          PermissaoUsuario
+
+  user               User                @relation(fields: [userId], references: [id])
+  escritorio         Escritorio          @relation(fields: [escritorioId], references: [id])
+
+  @@unique([userId, escritorioId])
+}
+
+model Cliente {
+  id           String      @id @default(uuid())
+  nome         String
+  email        String?
+  telefone     String?
+  escritorioId String
+
+  escritorio   Escritorio @relation(fields: [escritorioId], references: [id])
+  processos    Processo[]
+
+  @@unique([email, escritorioId]) 
+}
+
+model TipoProcesso {
+  id                 String              @id @default(uuid())
+  nome               String              @unique
+  processos          Processo[]
+}
+
+model Processo {
+  id                 String              @id @default(uuid())
+  numero             String              @unique
+  tipoId             String
+  escritorioId       String
+  clienteId          String             
+  descricao          String
+  valorCausa         Float
+  status             StatusProcesso
+  dataInicio         DateTime
+  dataEncerramento   DateTime?
+
+  tipo               TipoProcesso        @relation(fields: [tipoId], references: [id])
+  escritorio         Escritorio          @relation(fields: [escritorioId], references: [id])
+  cliente            Cliente             @relation(fields: [clienteId], references: [id]) 
+
+  advogados          AdvogadoProcesso[]
+  honorarios         Honorario[]
+}
+
+model AdvogadoProcesso {
+  id                 String              @id @default(uuid())
+  processoId         String
+  advogadoId         String
+  percentualParticipacao Float
+
+  processo           Processo            @relation(fields: [processoId], references: [id])
+  advogado           User                @relation(fields: [advogadoId], references: [id])
+
+  @@unique([processoId, advogadoId])
+}
+
+model Honorario {
+  id                 String              @id @default(uuid())
+  processoId         String
+  descricao          String
+  valor              Float
+  dataPrevistaRecebimento DateTime
+  dataRecebido       DateTime?
+  recebido           Boolean             @default(false)
+
+  processo           Processo            @relation(fields: [processoId], references: [id])
+  parcelas           ParcelaHonorario[]
+}
+
+model ParcelaHonorario {
+  id                 String              @id @default(uuid())
+  honorarioId        String
+  valor              Float
+  vencimento         DateTime
+  pago               Boolean             @default(false)
+  dataPagamento      DateTime?
+
+  honorario          Honorario           @relation(fields: [honorarioId], references: [id])
+}
+
+enum Role {
+  ADVOGADO
+  ADMIN
+}
+
+enum PermissaoUsuario {
+  ADMIN
+  MEMBRO
+}
+
+enum StatusProcesso {
+  EM_ANDAMENTO
+  ENCERRADO
+}
