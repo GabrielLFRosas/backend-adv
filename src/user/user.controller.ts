@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/guards/auth-guard';
 
 import { CreateUserDto } from './DTO/create-user.dto';
 import { UserService } from './user.service';
-import { JwtAuthGuard } from 'src/guards/auth-guard';
 
 @Controller('users')
 export class UserController {
@@ -10,7 +10,11 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() data: CreateUserDto) {
+  create(@Body() data: CreateUserDto,  @Request() req: any) {
+    const requestingUser = req.user;
+    if (data.role === 'ADMIN' && requestingUser.role !== 'ADMIN') {
+      throw new ForbiddenException('Apenas administradores podem criar outros administradores.');
+    }
     return this.userService.create(data);
   }
 
