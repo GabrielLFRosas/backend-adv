@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 import { BindUserToEscritorioDto } from './DTO/bind-user-escritorio.dto';
 import { CreateUserDto } from './DTO/create-user.dto';
@@ -26,7 +26,14 @@ export class UserService {
     });
   }
 
-  findAll() {
+  findAll(role?: any) {
+    if (role) {
+      return this.prismaService.user.findMany({
+        where: {
+          role: role.toUpperCase()
+        },
+      });
+    }
     return this.prismaService.user.findMany({
       select: {
         id: true,
