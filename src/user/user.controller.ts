@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Param, Post, Request, UseGuards, Query } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/auth-guard';
 
 import { CreateUserDto } from './DTO/create-user.dto';
@@ -20,8 +20,8 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query('role') role?: string) {
+    return this.userService.findAll(role);
   }
 
   @UseGuards(JwtAuthGuard)
