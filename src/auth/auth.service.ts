@@ -12,7 +12,6 @@ export class AuthService {
 
   async validateUser(email: string, senha: string) {
     const user = await this.prismaService.user.findUnique({ where: { email } });
-    console.log(user, await bcrypt.compare(senha, user.senhaHash))
     if (user && await bcrypt.compare(senha, user.senhaHash)) {
       const { senhaHash, ...rest } = user;
       return rest;
@@ -23,7 +22,8 @@ export class AuthService {
   async login(user: any) {
     const payload = { sub: user.id, email: user.email, role: user.role };
     return {
-      access_token: this.jwtService.sign(payload),
+      token: this.jwtService.sign(payload),
+      user
     };
   }
 }

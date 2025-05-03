@@ -8,9 +8,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() body: { email: string; senha: string }) {
-    console.log(body);
     const user = await this.authService.validateUser(body.email, body.senha);
-    console.log(user);
     if (!user) throw new UnauthorizedException('Credenciais inválidas');
     return this.authService.login(user);
   }
