@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseGuards, Query } from '@nestjs/common';
 import { ProcessoService } from './processo.service';
 import { CreateTipoProcessoDto } from './DTO/create-tipo-processo.dto';
 import { CreateProcessoDto } from './DTO/create-processo.dto';
@@ -34,8 +34,13 @@ export class ProcessoController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll() {
-    return await this.processoService.findAll();
+  async findAll(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    return this.processoService.findAll(pageNum, limitNum);
   }
 
   @UseGuards(JwtAuthGuard)

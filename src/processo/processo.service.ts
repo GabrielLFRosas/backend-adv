@@ -64,8 +64,15 @@ export class ProcessoService {
     return createProcess;
   }
 
-  async findAll() {
+  async findAll(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+    const take = limit;
+  
+    const total = await this.prismaService.processo.count();
+  
     const processos = await this.prismaService.processo.findMany({
+      skip,
+      take,
       select: {
         id: true,
         numero: true,
@@ -85,14 +92,24 @@ export class ProcessoService {
         },
       },
     });
-
-    return processos.map((processo) => ({
-      ...processo,
-      advogados: processo.advogados.map((a) => ({
-        nome: a.advogado.nome,
-        percentualParticipacao: a.percentualParticipacao,
+  
+    const totalPages = Math.ceil(total / limit);
+  
+    return {
+      data: processos.map((processo) => ({
+        ...processo,
+        advogados: processo.advogados.map((a) => ({
+          nome: a.advogado.nome,
+          percentualParticipacao: a.percentualParticipacao,
+        })),
       })),
-    }));
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+      },
+    };
   }
 
   async findOne(id: string) {
