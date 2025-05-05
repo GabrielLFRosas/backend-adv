@@ -1,8 +1,9 @@
-import { Controller, Post, Body, Get, Param, UseGuards, Query } from '@nestjs/common';
-import { ProcessoService } from './processo.service';
-import { CreateTipoProcessoDto } from './DTO/create-tipo-processo.dto';
-import { CreateProcessoDto } from './DTO/create-processo.dto';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/auth-guard';
+
+import { CreateProcessoDto } from './DTO/create-processo.dto';
+import { CreateTipoProcessoDto } from './DTO/create-tipo-processo.dto';
+import { ProcessoService } from './processo.service';
 
 @Controller('processo')
 export class ProcessoController {
@@ -41,6 +42,12 @@ export class ProcessoController {
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 10;
     return this.processoService.findAll(pageNum, limitNum);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('list')
+  async listAll() {
+    return this.processoService.listAll();
   }
 
   @UseGuards(JwtAuthGuard)

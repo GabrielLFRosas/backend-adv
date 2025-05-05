@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+
 import { CreateHonorarioDTO } from './DTO/create-honorario.dto';
 
 @Injectable()
@@ -50,6 +51,7 @@ export class HonorarioService {
         id: true,
         processo: {
           select: {
+            id: true,
             numero: true,
           },
         },

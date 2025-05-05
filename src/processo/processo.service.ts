@@ -112,6 +112,37 @@ export class ProcessoService {
     };
   }
 
+  async listAll() {
+    const processos = await this.prismaService.processo.findMany({
+      select: {
+        id: true,
+        numero: true,
+        tipo: { select: { id: true, nome: true } },
+        escritorio: { select: { id: true, nome: true } },
+        cliente: { select: { id: true, nome: true } },
+        descricao: true,
+        valorCausa: true,
+        status: true,
+        dataInicio: true,
+        dataEncerramento: true,
+        advogados: {
+          select: {
+            percentualParticipacao: true,
+            advogado: { select: { id: true, nome: true } },
+          },
+        },
+      },
+    });
+
+    return processos.map((processo) => ({
+      ...processo,
+      advogados: processo.advogados.map((a) => ({
+        nome: a.advogado.nome,
+        percentualParticipacao: a.percentualParticipacao,
+      })),
+    }));
+  }
+
   async findOne(id: string) {
     const processo = await this.prismaService.processo.findUnique({
       where: { id },
