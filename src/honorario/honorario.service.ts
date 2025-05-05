@@ -11,7 +11,7 @@ export class HonorarioService {
     const honorario = await this.prismaService.honorario.create({
       data: {
         processoId: data.processoId,
-        valor: data.valor,
+        valor: parseFloat(data.valor),
         dataPrevistaRecebimento: new Date(data.dataPrevistaRecebimento),
         dataRecebido: data.dataRecebido ? new Date(data.dataRecebido) : null,
         descricao: data.descricao,
@@ -23,7 +23,7 @@ export class HonorarioService {
     });
   
     if (data.nrParcelas && data.nrParcelas > 1) {
-      const valorParcela = parseFloat((data.valor / data.nrParcelas).toFixed(2));
+      const valorParcela = parseFloat((parseFloat(data.valor) / data.nrParcelas).toFixed(2));
       const parcelas = [];
   
       for (let i = 0; i < data.nrParcelas; i++) {
