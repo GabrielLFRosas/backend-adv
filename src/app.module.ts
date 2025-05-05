@@ -9,9 +9,10 @@ import { HonorarioModule } from './honorario/honorario.module';
 import { Prisma } from '@prisma/client';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
-  imports: [forwardRef(() => UserModule), forwardRef(() => EscritorioModule), ClienteModule, ProcessoModule, HonorarioModule, PrismaModule, AuthModule],
+  imports: [forwardRef(() => UserModule), forwardRef(() => EscritorioModule), ClienteModule, ProcessoModule, HonorarioModule, PrismaModule, AuthModule, DashboardModule],
   controllers: [AppController],
   providers: [AppService],
 })
