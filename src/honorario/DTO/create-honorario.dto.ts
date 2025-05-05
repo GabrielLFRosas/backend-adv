@@ -9,7 +9,7 @@ export class CreateHonorarioDTO {
   descricao: string;
 
   @IsNumber()
-  valor: number;
+  valor: string;
 
   @IsString()
   dataPrevistaRecebimento: string;
