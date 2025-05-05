@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsNumber, IsNumberString, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateProcessoDto {
   @IsString()
@@ -19,11 +19,11 @@ export class CreateProcessoDto {
   @IsString()
   descricao: string;
 
-  @IsNumber()
-  valorCausa: number;
+  @IsNumberString()
+  valorCausa: string;
 
   @IsNumber()
-  percentualParticipacao: number;
+  percentualParticipacao: string;
 
   @IsEnum(['EM_ANDAMENTO', 'ENCERRADO'])
   status: 'EM_ANDAMENTO' | 'ENCERRADO';

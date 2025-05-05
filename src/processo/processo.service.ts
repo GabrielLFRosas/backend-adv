@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateTipoProcessoDto } from './DTO/create-tipo-processo.dto';
+
 import { CreateProcessoDto } from './DTO/create-processo.dto';
+import { CreateTipoProcessoDto } from './DTO/create-tipo-processo.dto';
 
 @Injectable()
 export class ProcessoService {
-
-  constructor(private readonly prismaService: PrismaService){}
+  constructor(private readonly prismaService: PrismaService) {}
 
   createTipo(data: CreateTipoProcessoDto) {
     return this.prismaService.tipoProcesso.create({
@@ -36,28 +36,30 @@ export class ProcessoService {
         escritorioId: data.escritorioId,
         clienteId: data.clienteId,
         descricao: data.descricao,
-        valorCausa: data.valorCausa,
+        valorCausa: parseFloat(data.valorCausa),
         status: data.status,
         dataInicio: new Date(data.dataInicio),
-        dataEncerramento: data.dataEncerramento ? new Date(data.dataEncerramento) : null,
+        dataEncerramento: data.dataEncerramento
+          ? new Date(data.dataEncerramento)
+          : null,
       },
       select: {
-        id: true
-      }
+        id: true,
+      },
     });
     if (!createProcess) {
-      throw new Error('Error creating process')
+      throw new Error('Error creating process');
     }
 
     const bindUserProcesso = await this.prismaService.advogadoProcesso.create({
       data: {
         advogadoId: data.advogadoId,
         processoId: createProcess.id,
-        percentualParticipacao: data.percentualParticipacao,
+        percentualParticipacao: parseInt(data.percentualParticipacao),
       },
     });
     if (!bindUserProcesso) {
-      throw new Error('Error binding process to user')
+      throw new Error('Error binding process to user');
     }
     return createProcess;
   }
@@ -67,9 +69,9 @@ export class ProcessoService {
       select: {
         id: true,
         numero: true,
-        tipo: { select: { nome: true } },
-        escritorio: { select: { nome: true } },
-        cliente: { select: { nome: true } },
+        tipo: { select: { id: true, nome: true } },
+        escritorio: { select: { id: true, nome: true } },
+        cliente: { select: { id: true, nome: true } },
         descricao: true,
         valorCausa: true,
         status: true,
@@ -78,12 +80,12 @@ export class ProcessoService {
         advogados: {
           select: {
             percentualParticipacao: true,
-            advogado: { select: { nome: true } },
+            advogado: { select: { id: true, nome: true } },
           },
         },
       },
     });
-  
+
     return processos.map((processo) => ({
       ...processo,
       advogados: processo.advogados.map((a) => ({
@@ -92,7 +94,7 @@ export class ProcessoService {
       })),
     }));
   }
-  
+
   async findOne(id: string) {
     const processo = await this.prismaService.processo.findUnique({
       where: { id },
@@ -115,9 +117,9 @@ export class ProcessoService {
         },
       },
     });
-  
+
     if (!processo) return null;
-  
+
     return {
       ...processo,
       advogados: processo.advogados.map((a) => ({
@@ -125,7 +127,5 @@ export class ProcessoService {
         percentualParticipacao: a.percentualParticipacao,
       })),
     };
-  }  
-  
-  
+  }
 }
