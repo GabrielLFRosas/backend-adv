@@ -23,7 +23,8 @@ export class HonorarioService {
     });
   
     if (data.nrParcelas && data.nrParcelas > 1) {
-      const valorParcela = parseFloat((parseFloat(data.valor) / data.nrParcelas).toFixed(2));
+      const valor = parseFloat(data.valor);
+      const valorParcela = parseFloat((valor / data.nrParcelas).toFixed(2));
       const parcelas = [];
   
       for (let i = 0; i < data.nrParcelas; i++) {
