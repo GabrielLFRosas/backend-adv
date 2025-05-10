@@ -149,9 +149,9 @@ export class ProcessoService {
       select: {
         id: true,
         numero: true,
-        tipo: { select: { id:true, nome: true } },
-        escritorio: { select: { id:true, nome: true } },
-        cliente: { select: { id:true, nome: true } },
+        tipo: { select: { id: true, nome: true } },
+        escritorio: { select: { id: true, nome: true } },
+        cliente: { select: { id: true, nome: true } },
         descricao: true,
         valorCausa: true,
         status: true,
@@ -159,9 +159,8 @@ export class ProcessoService {
         dataEncerramento: true,
         advogados: {
           select: {
-            id: true,
             percentualParticipacao: true,
-            advogado: { select: { id:true, nome: true } },
+            advogado: { select: { id: true, nome: true } },
           },
         },
       },
@@ -172,6 +171,7 @@ export class ProcessoService {
     return {
       ...processo,
       advogados: processo.advogados.map((a) => ({
+        id: a.advogado.id,
         nome: a.advogado.nome,
         percentualParticipacao: a.percentualParticipacao,
       })),
