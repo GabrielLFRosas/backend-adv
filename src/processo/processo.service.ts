@@ -149,9 +149,9 @@ export class ProcessoService {
       select: {
         id: true,
         numero: true,
-        tipo: { select: { nome: true } },
-        escritorio: { select: { nome: true } },
-        cliente: { select: { nome: true } },
+        tipo: { select: { id:true, nome: true } },
+        escritorio: { select: { id:true, nome: true } },
+        cliente: { select: { id:true, nome: true } },
         descricao: true,
         valorCausa: true,
         status: true,
@@ -160,7 +160,7 @@ export class ProcessoService {
         advogados: {
           select: {
             percentualParticipacao: true,
-            advogado: { select: { nome: true } },
+            advogado: { select: { id:true, nome: true } },
           },
         },
       },
