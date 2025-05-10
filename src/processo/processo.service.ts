@@ -159,6 +159,7 @@ export class ProcessoService {
         dataEncerramento: true,
         advogados: {
           select: {
+            id: true,
             percentualParticipacao: true,
             advogado: { select: { id:true, nome: true } },
           },
