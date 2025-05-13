@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/auth-guard';
 
 import { CreateProcessoDto } from './DTO/create-processo.dto';
@@ -61,5 +61,11 @@ export class ProcessoController {
   @Patch(':id')
   async update(@Param('id') id: string, @Body() data: UpdateProcessoDto) {
     return await this.processoService.update(id, data);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return await this.processoService.remove(id);
   }
 }
