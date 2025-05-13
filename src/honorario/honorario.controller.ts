@@ -1,6 +1,8 @@
-import { Controller, Post, Get, Body, Param, UseGuards } from '@nestjs/common';
-import { HonorarioService } from './honorario.service';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/auth-guard';
+
+import { UpdateHonorarioDTO } from './DTO/update-honorario.dto';
+import { HonorarioService } from './honorario.service';
 
 @Controller('honorario')
 export class HonorarioController {
@@ -23,6 +25,18 @@ export class HonorarioController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.honorarioService.findOne(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() data: UpdateHonorarioDTO) {
+    return await this.honorarioService.update(id, data);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return await this.honorarioService.remove(id);
   }
   
 }

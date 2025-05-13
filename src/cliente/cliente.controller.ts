@@ -1,7 +1,9 @@
-import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/guards/auth-guard';
+
 import { ClienteService } from './cliente.service';
 import { CreateClienteDto } from './DTO/create-cliente.dto';
-import { JwtAuthGuard } from 'src/guards/auth-guard';
+import { UpdateClienteDto } from './DTO/update-cliente.dto';
 
 @Controller('cliente')
 export class ClienteController {
@@ -25,5 +27,17 @@ export class ClienteController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.clienteService.findOne(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() data: UpdateClienteDto) {
+    return this.clienteService.update(id, data);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return this.clienteService.remove(id);
   }
 }
