@@ -217,13 +217,34 @@ export class ProcessoService {
   }
 
   async remove(id: string) {
-  
-    this.prismaService.advogadoProcesso.deleteMany({
+    const honorarios = await this.prismaService.honorario.findMany({
       where: {
         processoId: id,
       },
     });
 
+    for (const honorario of honorarios) {
+      await this.prismaService.parcelaHonorario.deleteMany({
+        where: {
+          honorarioId: honorario.id,
+        },
+      });
+
+      await this.prismaService.honorario.delete({
+        where: {
+          id: honorario.id,
+        },
+      });
+    }
+
+    // Aguarde o deleteMany de advogadoProcesso
+    await this.prismaService.advogadoProcesso.deleteMany({
+      where: {
+        processoId: id,
+      },
+    });
+
+    // Finalmente delete o processo
     const processo = await this.prismaService.processo.delete({
       where: { id },
     });
