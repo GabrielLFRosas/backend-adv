@@ -26,6 +26,8 @@ export class DashboardController {
       throw new BadRequestException('Year must be between 2000 and 2100');
     }
 
+    console.log(userId)
+
     return this.dashboardService.getFinancialSummary(monthNum, yearNum, userId);
   }
 }

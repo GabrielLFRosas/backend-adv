@@ -7,55 +7,61 @@ export class DashboardService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getFinancialSummary(month: number, year: number, userId: string) {
+    // Define o período do filtro
     const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0, 23, 59, 59);
+    const endDate = new Date(year, month, 0, 23, 59, 59, 999);
 
-    const processos = await this.prismaService.processo.findMany({
+    // Busca honorários do período para o usuário
+    const honorarios = await this.prismaService.honorario.findMany({
       where: {
-        advogados: {
-          some: {
-            advogadoId: userId,
-          },
-        },
-        dataInicio: {
+        dataPrevistaRecebimento: {
+          gte: startDate,
           lte: endDate,
         },
-        OR: [
-          { dataEncerramento: null },
-          { dataEncerramento: { gte: startDate } },
-        ],
-      },
-      include: {
-        honorarios: {
-          include: {
-            parcelas: true,
+        processo: {
+          advogados: {
+            some: {
+              advogadoId: userId,
+            },
           },
         },
+      },
+      include: {
+        processo: {
+          select: {
+            numero: true,
+          },
+        },
+        parcelas: true,
       },
     });
 
-    const totalValorCausa = processos.reduce((sum, p) => sum + (p.valorCausa || 0), 0);
-    const totalHonorariosPrevistos = processos.reduce((sum, p) =>
-      sum + p.honorarios.reduce((hSum, h) => hSum + (h.valor || 0), 0), 0);
-    const totalHonorariosRecebidos = processos.reduce((sum, p) =>
-      sum + p.honorarios.reduce((hSum, h) =>
-        hSum + h.parcelas.reduce((pSum, p) => pSum + (p.pago ? p.valor : 0), 0), 0), 0);
+    // Calcula totais
+    const totalHonorariosPrevistos = honorarios.reduce(
+      (sum, h) => sum + h.valor,
+      0,
+    );
+    const totalHonorariosRecebidos = honorarios
+      .filter((h) => h.recebido)
+      .reduce((sum, h) => sum + h.valor, 0);
 
-    const processosDestaque = processos
-      .map(p => ({
-        numero: p.numero,
-        valorCausa: p.valorCausa || 0,
-        honorariosPendentes: p.honorarios.reduce((hSum, h) =>
-          hSum + h.parcelas.reduce((pSum, p) => pSum + (!p.pago ? p.valor : 0), 0), 0),
-      }))
-      .sort((a, b) => b.honorariosPendentes - a.honorariosPendentes)
-      .slice(0, 5); 
+    // Monta lista de parcelas pendentes
+    const parcelasPendentes = honorarios
+      .flatMap((honorario) =>
+        honorario.parcelas
+          .filter((parcela) => !parcela.pago)
+          .map((parcela) => ({
+            processoNumero: honorario.processo.numero,
+            descricao: honorario.descricao,
+            valor: parcela.valor,
+            dataPrevistaRecebimento: parcela.vencimento.toISOString().split('T')[0],
+          })),
+      );
 
     return {
-      totalValorCausa,
       totalHonorariosPrevistos,
       totalHonorariosRecebidos,
-      processosDestaque,
+      parcelasPendentes,
     };
   }
 }
