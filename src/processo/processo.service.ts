@@ -217,14 +217,15 @@ export class ProcessoService {
   }
 
   async remove(id: string) {
-    const processo = await this.prismaService.processo.delete({
-      where: { id },
-    });
-
+  
     this.prismaService.advogadoProcesso.deleteMany({
       where: {
         processoId: id,
       },
+    });
+
+    const processo = await this.prismaService.processo.delete({
+      where: { id },
     });
 
     return processo;
