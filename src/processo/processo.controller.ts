@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/auth-guard';
 
 import { CreateProcessoDto } from './DTO/create-processo.dto';
 import { CreateTipoProcessoDto } from './DTO/create-tipo-processo.dto';
+import { UpdateProcessoDto } from './DTO/update-processo.dto';
 import { ProcessoService } from './processo.service';
 
 @Controller('processo')
@@ -54,5 +55,11 @@ export class ProcessoController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.processoService.findOne(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() data: UpdateProcessoDto) {
+    return await this.processoService.update(id, data);
   }
 }

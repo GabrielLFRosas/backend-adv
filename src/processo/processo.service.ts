@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 import { CreateProcessoDto } from './DTO/create-processo.dto';
 import { CreateTipoProcessoDto } from './DTO/create-tipo-processo.dto';
+import { UpdateProcessoDto } from './DTO/update-processo.dto';
 
 @Injectable()
 export class ProcessoService {
@@ -67,9 +68,9 @@ export class ProcessoService {
   async findAll(page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
     const take = limit;
-  
+
     const total = await this.prismaService.processo.count();
-  
+
     const processos = await this.prismaService.processo.findMany({
       skip,
       take,
@@ -92,9 +93,9 @@ export class ProcessoService {
         },
       },
     });
-  
+
     const totalPages = Math.ceil(total / limit);
-  
+
     return {
       data: processos.map((processo) => ({
         ...processo,
@@ -176,5 +177,42 @@ export class ProcessoService {
         percentualParticipacao: a.percentualParticipacao,
       })),
     };
+  }
+
+  async update(id: string, data: UpdateProcessoDto) {
+    const processo = await this.prismaService.processo.update({
+      where: { id },
+      data: {
+        numero: data?.numero,
+        tipoId: data?.tipoId,
+        escritorioId: data?.escritorioId,
+        clienteId: data?.clienteId,
+        descricao: data?.descricao,
+        valorCausa: parseFloat(data?.valorCausa),
+        status: data?.status,
+        dataInicio: new Date(data?.dataInicio),
+        dataEncerramento: data?.dataEncerramento
+          ? new Date(data?.dataEncerramento)
+          : null,
+      },
+    });
+
+    const bindUserProcesso = await this.prismaService.advogadoProcesso.update({
+      data: {
+        advogadoId: data.advogadoId,
+        percentualParticipacao: parseInt(data.percentualParticipacao),
+      },
+      where: {
+        processoId_advogadoId: {
+          processoId: id,
+          advogadoId: data.advogadoId,
+        },
+      },
+    });
+    if (!bindUserProcesso) {
+      throw new Error('Error binding process to user');
+    }
+
+    return processo;
   }
 }
