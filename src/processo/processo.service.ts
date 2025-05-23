@@ -39,7 +39,7 @@ export class ProcessoService {
         descricao: data.descricao,
         valorCausa: parseFloat(data.valorCausa),
         status: data.status,
-        dataVencimento: data.dataVencimento,
+        dataVencimento: new Date(data.dataVencimento),
         nrParcelas: data.nrParcelas,
         percentualParticipacao: data.percentualParticipacao
       },
@@ -53,7 +53,7 @@ export class ProcessoService {
         data: {
           processoId: createProcess.id,
           valor: parseFloat(data.valorCausa) * (data.percentualParticipacao / 100) / 1,
-          vencimento: data.dataVencimento,
+          vencimento: new Date(data.dataVencimento),
         }
       })
     } else {
@@ -212,7 +212,7 @@ export class ProcessoService {
         descricao: data?.descricao,
         valorCausa: parseFloat(data?.valorCausa),
         status: data?.status,
-        dataVencimento: data.dataVencimento,
+        dataVencimento: new Date(data.dataVencimento),
         nrParcelas: data.nrParcelas,
         percentualParticipacao: data.percentualParticipacao,
       },
@@ -226,7 +226,7 @@ export class ProcessoService {
       this.prismaService.parcelas.create({ data: {
         processoId: id,
         valor: parseFloat(data.valorCausa) * (data.percentualParticipacao / 100) / 1,
-        vencimento: data.dataVencimento
+        vencimento: new Date(data.dataVencimento)
       }})
     } else {
       for(var i=1; i <= data.nrParcelas; i++){

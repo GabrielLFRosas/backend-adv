@@ -71,7 +71,7 @@ model Processo {
   status             StatusProcesso
   dataVencimento     DateTime
   percentualParticipacao Float
-  nrParcelas           Int
+  nrParcelas         Int
 
   tipo               TipoProcesso        @relation(fields: [tipoId], references: [id])
   escritorio         Escritorio          @relation(fields: [escritorioId], references: [id])
@@ -79,8 +79,8 @@ model Processo {
 
   advogados          AdvogadoProcesso[]
   parcelas           Parcelas[]
-
 }
+
 
 model AdvogadoProcesso {
   id                 String              @id @default(uuid())
