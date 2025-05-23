@@ -69,22 +69,23 @@ model Processo {
   descricao          String
   valorCausa         Float
   status             StatusProcesso
-  dataInicio         DateTime
-  dataEncerramento   DateTime?
+  dataVencimento     DateTime
+  percentualParticipacao Float
+  nrParcelas           Int
 
   tipo               TipoProcesso        @relation(fields: [tipoId], references: [id])
   escritorio         Escritorio          @relation(fields: [escritorioId], references: [id])
   cliente            Cliente             @relation(fields: [clienteId], references: [id]) 
 
   advogados          AdvogadoProcesso[]
-  honorarios         Honorario[]
+  parcelas           Parcelas[]
+
 }
 
 model AdvogadoProcesso {
   id                 String              @id @default(uuid())
   processoId         String
   advogadoId         String
-  percentualParticipacao Float
 
   processo           Processo            @relation(fields: [processoId], references: [id])
   advogado           User                @relation(fields: [advogadoId], references: [id])
@@ -92,28 +93,15 @@ model AdvogadoProcesso {
   @@unique([processoId, advogadoId])
 }
 
-model Honorario {
+model Parcelas {
   id                 String              @id @default(uuid())
   processoId         String
-  descricao          String
-  valor              Float
-  dataPrevistaRecebimento DateTime
-  dataRecebido       DateTime?
-  recebido           Boolean             @default(false)
-
-  processo           Processo            @relation(fields: [processoId], references: [id])
-  parcelas           ParcelaHonorario[]
-}
-
-model ParcelaHonorario {
-  id                 String              @id @default(uuid())
-  honorarioId        String
   valor              Float
   vencimento         DateTime
   pago               Boolean             @default(false)
   dataPagamento      DateTime?
 
-  honorario          Honorario           @relation(fields: [honorarioId], references: [id])
+  processo           Processo            @relation(fields: [processoId], references: [id])
 }
 
 enum Role {
