@@ -16,25 +16,24 @@ export class DashboardService {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59, 999);
   
-    // Busca todos os escritórios relacionados ao usuário
-    const escritoriosUsuario = await this.prismaService.usuarioEscritorio.findMany({
-      where: { userId },
-      select: { escritorioId: true },
-    });
-  
-    const escritorioIds = escritoriosUsuario.map((e) => e.escritorioId);
+    // Buscar parcelas cujo processo tenha advogadoId igual ao userId
+    const whereFilter = {
+      vencimento: {
+        gte: startDate,
+        lte: endDate,
+      },
+      processo: {
+        advogados: {
+          some: {
+            advogadoId: userId,  // Aqui o filtro correto na relação N:N
+          },
+        },
+      },
+    };
   
     // Busca as parcelas com paginação
     const parcelas = await this.prismaService.parcelas.findMany({
-      where: {
-        vencimento: {
-          gte: startDate,
-          lte: endDate,
-        },
-        processo: {
-          escritorioId: { in: escritorioIds },
-        },
-      },
+      where: whereFilter,
       include: {
         processo: {
           include: {
@@ -46,8 +45,8 @@ export class DashboardService {
       orderBy: {
         vencimento: 'asc',
       },
-      skip: (page - 1) * limit, // Pular registros para paginação
-      take: limit, // Limitar número de registros
+      skip: (page - 1) * limit,
+      take: limit,
     });
   
     // Calcula os totais
@@ -59,17 +58,9 @@ export class DashboardService {
       .filter((parcela) => parcela.pago)
       .reduce((sum, parcela) => sum + parcela.valor, 0);
   
-    // Conta o total de parcelas para paginação
+    // Conta o total de parcelas para paginação com o mesmo filtro
     const totalParcelas = await this.prismaService.parcelas.count({
-      where: {
-        vencimento: {
-          gte: startDate,
-          lte: endDate,
-        },
-        processo: {
-          escritorioId: { in: escritorioIds },
-        },
-      },
+      where: whereFilter,
     });
   
     // Formata as parcelas para o formato esperado pelo frontend
@@ -93,6 +84,7 @@ export class DashboardService {
       },
     };
   }
+  
 
   async registrarPagamento(parcelaId: string) {
     const parcela = await this.prismaService.parcelas.findUnique({
