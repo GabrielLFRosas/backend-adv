@@ -65,6 +65,7 @@ export class DashboardService {
   
     // Formata as parcelas para o formato esperado pelo frontend
     const proximosRecebimentos = parcelas.map((parcela) => ({
+      parcelaId: parcela.id,
       processoNumero: parcela.processo.numero,
       descricao: parcela.processo.descricao,
       valor: parcela.valor,
