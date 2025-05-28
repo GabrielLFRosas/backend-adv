@@ -41,38 +41,42 @@ export class ProcessoService {
         status: data.status,
         dataVencimento: new Date(data.dataVencimento),
         nrParcelas: data.nrParcelas,
-        percentualParticipacao: data.percentualParticipacao
+        percentualParticipacao: data.percentualParticipacao,
       },
       select: {
         id: true,
       },
     });
 
-    if(!data.nrParcelas){
+    if (!data.nrParcelas) {
       await this.prismaService.parcelas.create({
         data: {
           processoId: createProcess.id,
-          valor: parseFloat(data.valorCausa) * (data.percentualParticipacao / 100) / 1,
+          valor:
+            (parseFloat(data.valorCausa) *
+              (data.percentualParticipacao / 100)) /
+            1,
           vencimento: new Date(data.dataVencimento),
-        }
-      })
+        },
+      });
     } else {
-      for(var i=1; i <= data.nrParcelas; i++){
+      for (let i = 0; i < data.nrParcelas; i++) {
         const vencimento = new Date(data.dataVencimento);
-        if(i > 1){
-          vencimento.setMonth(vencimento.getMonth() + i); 
-        }
+        vencimento.setMonth(vencimento.getMonth() + i);
+
         await this.prismaService.parcelas.create({
           data: {
             processoId: createProcess.id,
-            valor: parseFloat(data.valorCausa) * (data.percentualParticipacao / 100) / data.nrParcelas,
+            valor:
+              (parseFloat(data.valorCausa) *
+                (data.percentualParticipacao / 100)) /
+              data.nrParcelas,
             vencimento: vencimento,
-            pago: false
-          }
-        })
+            pago: false,
+          },
+        });
       }
     }
-
 
     if (!createProcess) {
       throw new Error('Error creating process');
@@ -218,31 +222,39 @@ export class ProcessoService {
       },
     });
 
-    await this.prismaService.parcelas.deleteMany({where: {
-       processoId: id
-    }});
-
-    if(!data.nrParcelas){
-      this.prismaService.parcelas.create({ data: {
+    await this.prismaService.parcelas.deleteMany({
+      where: {
         processoId: id,
-        valor: parseFloat(data.valorCausa) * (data.percentualParticipacao / 100) / 1,
-        vencimento: new Date(data.dataVencimento)
-      }})
+      },
+    });
+
+    if (!data.nrParcelas) {
+      this.prismaService.parcelas.create({
+        data: {
+          processoId: id,
+          valor:
+            (parseFloat(data.valorCausa) *
+              (data.percentualParticipacao / 100)) /
+            1,
+          vencimento: new Date(data.dataVencimento),
+        },
+      });
     } else {
-      for(var i=1; i <= data.nrParcelas; i++){
+      for (let i = 0; i < data.nrParcelas; i++) {
         const vencimento = new Date(data.dataVencimento);
-        if(i > 1){
-          vencimento.setMonth(vencimento.getMonth() + i); 
-        }
-  
+        vencimento.setMonth(vencimento.getMonth() + i); // i = 0 na 1ª, então não muda nada
+
         await this.prismaService.parcelas.create({
           data: {
             processoId: id,
-            valor: parseFloat(data.valorCausa) * (data.percentualParticipacao / 100) / data.nrParcelas,
+            valor:
+              (parseFloat(data.valorCausa) *
+                (data.percentualParticipacao / 100)) /
+              data.nrParcelas,
             vencimento: vencimento,
-            pago: false
-          }
-        })
+            pago: false,
+          },
+        });
       }
     }
 
@@ -265,12 +277,11 @@ export class ProcessoService {
   }
 
   async remove(id: string) {
-
     await this.prismaService.parcelas.deleteMany({
       where: {
-        processoId: id
-      }
-    })
+        processoId: id,
+      },
+    });
 
     // Aguarde o deleteMany de advogadoProcesso
     await this.prismaService.advogadoProcesso.deleteMany({
