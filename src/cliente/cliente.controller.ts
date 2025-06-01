@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/auth-guard';
 
 import { ClienteService } from './cliente.service';
@@ -19,8 +19,14 @@ export class ClienteController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll() {
-    return this.clienteService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+  ) {
+    return this.clienteService.findAll(
+      parseInt(page, 10),
+      parseInt(limit, 10),
+    );
   }
 
   @UseGuards(JwtAuthGuard)

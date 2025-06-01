@@ -18,21 +18,36 @@ export class ClienteService {
     });
   }
 
-  findAll() {
-    return this.prismaService.cliente.findMany({
-      select: {
-        id: true,
-        nome: true,
-        email: true,
-        telefone: true,
-        escritorio: {
-          select: {
-            id: true,
-            nome: true,
+  async findAll(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+    const take = limit;
+
+    const [customers, total] = await Promise.all([
+      this.prismaService.cliente.findMany({
+        skip,
+        take,
+        select: {
+          id: true,
+          nome: true,
+          email: true,
+          telefone: true,
+          escritorio: {
+            select: {
+              id: true,
+              nome: true,
+            },
           },
         },
-      },
-    });
+      }),
+      this.prismaService.cliente.count(),
+    ]);
+
+    return {
+      customers,
+      page,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
   }
   
 
